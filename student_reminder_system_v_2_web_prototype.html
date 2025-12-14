@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StudyMate V2 – Student Reminder System</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 0; }
+    header { background: #1e40af; color: white; padding: 1rem; text-align: center; }
+    .container { max-width: 900px; margin: 2rem auto; background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    h2 { margin-top: 0; }
+    .task-form { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 0.5rem; margin-bottom: 1rem; }
+    input, select, button { padding: 0.5rem; border-radius: 5px; border: 1px solid #ccc; }
+    button { background: #1e40af; color: white; cursor: pointer; }
+    button:hover { background: #1e3a8a; }
+    ul { list-style: none; padding: 0; }
+    li { background: #eef2ff; margin-bottom: 0.5rem; padding: 0.75rem; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+    .priority-high { color: #dc2626; font-weight: bold; }
+    .priority-medium { color: #d97706; }
+    .priority-low { color: #16a34a; }
+    footer { text-align: center; margin-top: 2rem; color: #666; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>StudyMate V2</h1>
+    <p>Smart Reminder System for Busy Students</p>
+  </header>
+
+  <div class="container">
+    <h2>Add Academic Task</h2>
+    <div class="task-form">
+      <input type="text" id="taskName" placeholder="Task name" />
+      <input type="date" id="taskDate" />
+      <input type="time" id="taskTime" />
+      <select id="taskPriority">
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select>
+      <button onclick="addTask()">Add</button>
+    </div>
+
+    <h2>Your Tasks</h2>
+    <ul id="taskList"></ul>
+  </div>
+
+  <footer>
+    Prototype concept for an academic reminder system • Accessible via web & mobile browsers
+  </footer>
+
+  <script>
+    if ('Notification' in window) { Notification.requestPermission(); }
+
+    function addTask() {
+      const name = document.getElementById('taskName').value;
+      const date = document.getElementById('taskDate').value;
+      const time = document.getElementById('taskTime').value;
+      const priority = document.getElementById('taskPriority').value;
+
+      if (!name || !date || !time) { alert('Please enter task name, date, and time'); return; }
+
+      const li = document.createElement('li');
+      const span = document.createElement('span');
+      span.textContent = `${name} (Due: ${date} ${time})`;
+
+      const pr = document.createElement('span');
+      pr.textContent = priority;
+      pr.className = priority === 'High' ? 'priority-high' : priority === 'Medium' ? 'priority-medium' : 'priority-low';
+
+      li.appendChild(span);
+      li.appendChild(pr);
+      document.getElementById('taskList').appendChild(li);
+
+      scheduleNotification(name, date, time);
+
+      document.getElementById('taskName').value = '';
+      document.getElementById('taskDate').value = '';
+      document.getElementById('taskTime').value = '';
+    }
+
+    function scheduleNotification(task, date, time) {
+      const taskTime = new Date(`${date}T${time}`);
+      const now = new Date();
+      const delay = taskTime - now;
+
+      if (delay > 0 && Notification.permission === 'granted') {
+        setTimeout(() => {
+          const audio = new Audio('https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg');
+          audio.play();
+          new Notification('StudyMate Reminder', { body: `Time to work on: ${task}` });
+        }, delay);
+      }
+    }
+  </script>
+</body>
+</html>
